@@ -1,0 +1,47 @@
+---
+dependency:
+  name: galaxy
+
+driver:
+  name: delegated
+
+
+platforms:
+  - name: centos-7
+    ami_owner: "679593333241"
+    ami_name: "CentOS Linux 7 x86_64*"
+    instance_type: t2.medium
+    user: centos
+
+  - name: debian-stretch
+    ami_owner: "379101102735"
+    ami_name: "debian-stretch-hvm-x86_64-gp2*"
+    instance_type: t2.medium
+    user: admin
+
+  - name: ubuntu-18-lts
+    ami_owner: "099720109477"
+    ami_name: "ubuntu/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server-*"
+    instance_type: t2.medium
+    user: ubuntu
+
+
+lint:
+  name: yamllint
+  options:
+    config-file: "${MOLECULE_PROJECT_DIRECTORY}/molecule/.yamllint"
+
+provisioner:
+  name: ansible
+  lint:
+    name: ansible-lint
+  playbooks:
+    create: "${MOLECULE_PROJECT_DIRECTORY}/molecule/utils/delegated_create.yml"
+    prepare: "${MOLECULE_PROJECT_DIRECTORY}/molecule/utils/delegated_prepare.yml"
+    converge: "${MOLECULE_PROJECT_DIRECTORY}/molecule/utils/delegated_converge.yml"
+    destroy: "${MOLECULE_PROJECT_DIRECTORY}/molecule/utils/delegated_destroy.yml"
+
+verifier:
+  name: testinfra
+  lint:
+    name: flake8

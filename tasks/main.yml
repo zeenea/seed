@@ -1,0 +1,54 @@
+---
+- name: Low-dependency lsb_release install
+  script: files/seed-trunk.sh
+  args:
+    creates: "/usr/bin/lsb_release"
+
+- name: Low-dependency distributor id get
+  raw: >-
+    lsb_release -i | grep -v sudo | rev | cut -f1 | rev | tr '[:upper:]' '[:lower:]'
+  register: distributor_id_raw
+  become: no
+  changed_when: no
+
+- name: Low-dependency major version number get
+  raw: >-
+    lsb_release -r | grep -v sudo | rev | cut -f1 | rev | cut -d '.' -f1
+  register: major_version_raw
+  become: no
+  changed_when: no
+
+- name: Clean distributor id and major version variables
+  set_fact:
+    distributor_id: "{{ (distributor_id_raw.stdout|string).strip() }}"
+    major_version: "{{ (major_version_raw.stdout|string).strip() }}"
+
+- name: Match elementary os to corresponding ubuntu version
+  set_fact:
+    distributor_id: "ubuntu"
+    major_version: "16"
+  when:
+    - distributor_id == "elementary"
+    - major_version == "0"
+
+- debug:
+    msg: "Detected seeding ground: {{ distributor_id }} {{ major_version }}"
+    verbosity: 1
+
+- name: Include pre-seed tasks if needed
+  include: "{{ item }}"
+  with_first_found:
+    - files:
+        - "pre-seed-{{ distributor_id }}-{{ major_version }}.yml"
+      errors: ignore
+      skip: true
+
+- name: Seeding ansible ground
+  script: >-
+    files/seed-{{ distributor_id }}-{{ major_version }}.sh
+  register: ansible_seed
+  changed_when: ansible_seed.rc == 0
+  failed_when: ansible_seed.rc != 0 and ansible_seed.rc != 42
+
+- name: Explicit fact gathering to validate install
+  setup:
