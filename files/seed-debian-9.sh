@@ -20,6 +20,7 @@ fi
 
 apt update
 apt -o Dpkg::Options::="--force-confold" upgrade -y
+echo 'deb http://ftp.debian.org/debian stretch-backports main' | tee /etc/apt/sources.list.d/stretch-backports.list
 apt update
 
 apt -o Dpkg::Options::="--force-confold" install \
