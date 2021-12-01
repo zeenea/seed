@@ -39,7 +39,7 @@ apt -o Dpkg::Options::="--force-confold" install \
     python3-pip         \
     -y
 
-pip3 install -U pexpect pyopenssl ndg-httpsclient pyasn1 boto3 ansible
+pip3 install -U pexpect pyopenssl ndg-httpsclient pyasn1 boto3 ansible==4.9.0
 
 # Leaving a custom fact for future idempotency checking
 mkdir -p /etc/ansible/facts.d
