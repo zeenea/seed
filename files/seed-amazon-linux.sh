@@ -10,6 +10,7 @@ fi
 
 sudo yum install git -y
 
+pip3 install -U boto
 pip3 install -U boto3
 pip3 install -U ansible==4.9.0
 
